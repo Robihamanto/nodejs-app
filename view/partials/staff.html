@@ -1,0 +1,23 @@
+{% block content %}
+      <table class='highlight'>
+        <thead>
+          <tr>
+              <th>Nim</th>
+              <th>Name</th>
+              <th>Verifikasi</th>
+          </tr>
+        </thead>
+
+        <tbody>
+            {% for people in person %}
+          <tr>
+            <td>{{people.nim}}</td>
+            <td>{{people.nama}}</td>
+            {% if people.isValidate %}
+            {% endif %}
+            <td><a  href="" class="waves-effect waves-light btn pink accent-3">Activate</a></td>
+          </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+{% endblock %}

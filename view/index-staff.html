@@ -1,43 +1,6 @@
-{% extends 'layout.html' %}
+{% extends './layouts/master-layout.html' %}
 
-<html>
-
-<head>
-    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
-    <link rel="stylesheet" type="text/css" href="cssFiles/materialize.min.css">
-    <style>
-        body {
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-        }
-
-        main {
-            flex: 1 0 auto;
-        }
-
-        body {
-            background: #fff;
-        }
-
-        .input-field input[type=date]:focus+label,
-        .input-field input[type=text]:focus+label,
-        .input-field input[type=email]:focus+label,
-        .input-field input[type=password]:focus+label {
-            color: #e91e63;
-        }
-
-        .input-field input[type=date]:focus,
-        .input-field input[type=text]:focus,
-        .input-field input[type=email]:focus,
-        .input-field input[type=password]:focus {
-            border-bottom: 2px solid #e91e63;
-            box-shadow: none;
-        }
-    </style>
-</head>
-
-<body>
+{% block content %}
     <div class="section"></div>
     <main>
         <center>
@@ -51,7 +14,7 @@
             <div class="container">
                 <div class="z-depth-1 grey lighten-4 row" style="display: inline-block; padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
 
-                    <form action="/" class="col s12" method="POST">
+                    <form action="/login-staff" class="col s12" method="POST">
                         <div class='row'>
                             <div class='col s12'>
                             </div>
@@ -59,8 +22,8 @@
 
                         <div class='row'>
                             <div class='input-field col s12'>
-                                <input class='validate' type='text' name='username' id='email'/>
-                                <label for='email'>Enter your email</label>
+                                <input class='validate' type='text' name='username' id='email' placeholder="{{name}}"/>
+                                <label for='email'>Enter your username</label>
                             </div>
                         </div>
 
@@ -86,15 +49,11 @@
                     </form>
                 </div>
             </div>
-            <a href="/register">Create account</a>
+            <a href="/register-mahasiswa">Create account</a>
         </center>
 
         <div class="section"></div>
         <div class="section"></div>
     </main>
 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="jsFiles/materialize.min.js"></script>
-</body>
-
-</html>
+    {% endblock %}

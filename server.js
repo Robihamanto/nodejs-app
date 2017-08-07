@@ -31,7 +31,7 @@ app.use('/fontFiles', express.static(__dirname + '/assets/materialize/fonts'));
 app.use(bodyParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 
 app.use(sessions({
     secret: 'robihamanto',
@@ -45,13 +45,11 @@ app.get('/', function (req, res) {
     if (session.uniqueID) {
         res.redirect('/redirect');
     }
-    var html = view.compileFile('./view/index.html')({
-        name: 'Robihamanto',
-    });
+    var html = view.compileFile('./view/index-mahasiswa.html')();
     res.end(html);
 });
 
-app.post('/', function (req, res) {
+app.post('/login-mahasiswa', function (req, res) {
     //Checking Session
     session = req.session;
     if (session.uniqueID) {
@@ -64,9 +62,50 @@ app.post('/', function (req, res) {
     }, function (err, rows, fields) {
         if (err) throw error;
         if (bcrypt.compareSync(req.body.password, rows[0].password)) {
-            // session.uniqueID = rows[0].nama;
-            session.uniqueID = rows;
+            //Set session berupa object
+            var sessionObject = {
+                username: rows[0].nama,
+                access: 3,
+            };
+            session.uniqueID = sessionObject;
             console.log(session.uniqueID);
+        }
+        res.redirect('/redirect');
+    });
+    
+});
+
+//Login staff jurusan
+
+app.get('/login-staff', function (req, res) {
+    session = req.session;
+    if (session.uniqueID) {
+        res.redirect('/redirect');
+    }
+    var html = view.compileFile('./view/index-staff.html')();
+    res.end(html);
+});
+
+app.post('/login-staff', function (req, res) {
+    //Checking Session
+    session = req.session;
+    if (session.uniqueID) {
+        res.redirect('/redirect');
+    }
+
+    //Looking for data in mahasiswa database
+    connection.query('SELECT * FROM STAFF WHERE ?', {
+        username: req.body.username,
+    }, function (err, rows, fields) {
+        if (err) throw error;
+        if (bcrypt.compareSync(req.body.password, rows[0].password)) {
+            //Set session berupa object
+            var sessionObject = {
+                username: rows[0].username,
+                name: rows[0].name,
+                access: 1,
+            };
+            session.uniqueID = sessionObject;
         }
         res.redirect('/redirect');
     });
@@ -76,9 +115,19 @@ app.post('/', function (req, res) {
 app.get('/redirect', function (req, res) {
     session = req.session;
     if (session.uniqueID) {
-        res.redirect('/home');
+        if(session.uniqueID.access == 1){
+            var html = view.compileFile('./view/partials/staff.html');
+            res.end(html);
+        }else if(session.uniqueID.access == 2){
+
+        }else if(session.uniqueID.access == 3){
+            var html = view.compileFile('./view/home.html')();
+            res.end(html);
+        }
     } else {
         res.redirect('/');
+        // var html = view.compileFile('./view/index-mahasiswa.html')();
+        // res.end(html);
     }
 });
 
@@ -88,15 +137,15 @@ app.get('/logout', function (req, res) {
 });
 
 app.get('/home', function (req, res) {
-    // session = req.session;
-    // if (session.uniqueID) {
+    session = req.session;
+    if (session.uniqueID) {
     var html = view.compileFile('./view/home.html')({
-        // name: session.uniqueID,
+        name: session.uniqueID,
     });
     res.end(html);
-    // } else {
-        // res.redirect('/');
-    // }
+    } else {
+        res.redirect('/');
+    }
 });
 
 app.get('/admin', function (req, res) {
@@ -139,17 +188,17 @@ app.get('/list', function (req, res) {
     res.end(html);
 });
 
-app.get('/register', function (req, res) {
+app.get('/register-mahasiswa', function (req, res) {
     //Checking Session
     session = req.session;
     if (session.uniqueID) {
         res.redirect('/redirect');
     }
-
-    res.sendFile('register.html', { root: __dirname + '/view' });
+    var html = view.compileFile('./view/partials/register-mahasiswa.html')();
+    res.end(html);
 })
 
-app.post('/register', function (req, res) {
+app.post('/register-mahasiswa', function (req, res) {
     //Checking Session
     session = req.session;
     if (session.uniqueID) {
@@ -162,7 +211,46 @@ app.post('/register', function (req, res) {
         nama: req.body.name,
     });
     res.redirect('/');
-})
+});
+
+app.get('/staff', function(req, res){
+    connection.query('SELECT * FROM MAHASISWA', function(err, rows, fields){
+        if(err) throw err;
+        var html = view.compileFile('./view/partials/staff.html')({
+            person: rows,
+        }); 
+        if(rows[0]){
+            res.end(html);   
+        }else{
+            res.redirect('/');
+        }
+    });
+});
+
+app.get('/register-staff', function (req, res) {
+    //Checking Session
+    session = req.session;
+    if (session.uniqueID) {
+        res.redirect('/redirect');
+    }
+    var html = view.compileFile('./view/partials/register-staff.html')();
+    res.end(html);
+});
+
+app.post('/register-staff', function (req, res) {
+    //Checking Session
+    session = req.session;
+    if (session.uniqueID) {
+        res.redirect('/redirect');
+    }
+
+    connection.query('INSERT INTO STAFF SET ?', {
+        username: req.body.username,
+        password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10)),
+        access: 1,
+    });
+    res.redirect('/redirect');
+});
 
 app.listen(8888, function (req, res) {
     console.log('Server is starting..');
