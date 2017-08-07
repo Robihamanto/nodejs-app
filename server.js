@@ -93,7 +93,7 @@ app.post('/login-staff', function (req, res) {
         res.redirect('/redirect');
     }
 
-    //Looking for data in mahasiswa database
+    //Looking for data in staff database
     connection.query('SELECT * FROM STAFF WHERE ?', {
         username: req.body.username,
     }, function (err, rows, fields) {
@@ -102,12 +102,13 @@ app.post('/login-staff', function (req, res) {
             //Set session berupa object
             var sessionObject = {
                 username: rows[0].username,
-                name: rows[0].name,
+                name: rows[0].nama,
                 access: 1,
             };
             session.uniqueID = sessionObject;
+            res.redirect('/staff');
         }
-        res.redirect('/redirect');
+        res.redirect('/login-staff');
     });
     
 });
@@ -219,7 +220,7 @@ app.get('/staff', function(req, res){
         var html = view.compileFile('./view/partials/staff.html')({
             person: rows,
         }); 
-        if(rows[0]){
+        if(rows[0]){    
             res.end(html);   
         }else{
             res.redirect('/');
